@@ -1,36 +1,13 @@
 # 🏦 Bank ATMs Management Service
 
-A simple Ruby-based banking system that simulates ATM interactions: create accounts, deposit and withdraw money, and manage balances — all with daily withdrawal limits.
+A Ruby-based system for managing user bank accounts and ATM transactions.
 
----
+## Features
 
-## 📋 Project Overview
+- **Account creation** with name, job, email, and address
+- **Unlimited deposits**
+- **Withdrawals** limited to $5,000/day and within account balance
 
-You're developing the core software for a bank’s ATM and account system. The goal is to manage:
+## Constraints
 
-- ✅ User account creation
-- 💸 Money deposits (unlimited)
-- 🏧 Withdrawals (with daily and balance constraints)
-
----
-
-## 🚀 Features
-
-- 🔐 **Account Creation**
-  Users can sign up with:
-  - Name
-  - Job title
-  - Email
-  - Address
-
-- 💵 **Deposits**
-  Unlimited deposit capability
-
-- 💳 **Withdrawals**
-  - Max $5,000 per day
-  - Cannot exceed current account balance
-
-- ✅ **Validation Logic**
-  All withdrawals are checked against both:
-  - Daily withdrawal limit
-  - Available balance
+- Withdrawals exceeding the daily limit or account balance are blocked
