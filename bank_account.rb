@@ -1,7 +1,3 @@
-# Bank account class
-# - attributes: name, job, email, address
-# - methods:
-
 class BankAccount
 	attr_reader :id
 	attr_accessor :name, :job, :email, :address

@@ -1,9 +1,36 @@
-# Bank ATMs Management service
+# 🏦 Bank ATMs Management Service
 
-You are in charge of creating the software for a bank. Your program needs to manage all ATMs & accounts for the bank.
+A simple Ruby-based banking system that simulates ATM interactions: create accounts, deposit and withdraw money, and manage balances — all with daily withdrawal limits.
 
-Write a Ruby program which will allow users to create an account to the bank using their personal details (name, job, email & address) & retrieving or depositing money into their account.
+---
 
-Each user can deposit an unlimited amount of money, but only retrieve 5.000$ per day; you’ll also have to check that they aren’t retrieving more money than it’s available in their account.
+## 📋 Project Overview
 
-*(optional)* Write unit tests to cover all the scenarios for the software.
+You're developing the core software for a bank’s ATM and account system. The goal is to manage:
+
+- ✅ User account creation
+- 💸 Money deposits (unlimited)
+- 🏧 Withdrawals (with daily and balance constraints)
+
+---
+
+## 🚀 Features
+
+- 🔐 **Account Creation**
+  Users can sign up with:
+  - Name
+  - Job title
+  - Email
+  - Address
+
+- 💵 **Deposits**
+  Unlimited deposit capability
+
+- 💳 **Withdrawals**
+  - Max $5,000 per day
+  - Cannot exceed current account balance
+
+- ✅ **Validation Logic**
+  All withdrawals are checked against both:
+  - Daily withdrawal limit
+  - Available balance
