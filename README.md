@@ -1,11 +1,12 @@
 # Bank System CLI
 
-A production-grade command-line interface (CLI) application for managing a simple banking system, built with Ruby, Sequel, and PostgreSQL.
+A CLI application for managing a simple banking system, built with Ruby, Sequel, and PostgreSQL.
 
 ## Features
 
 - Create bank accounts
 - Deposit and withdraw funds
+- Transfer funds between accounts
 - View transaction history for an account
 - Enforces a daily withdrawal limit
 
@@ -54,10 +55,3 @@ This project follows a modern Controller-Service-Repository architecture to ensu
     ```sh
     ruby main.rb
     ```
-
-## Usage
-
-Once the application is running, follow the on-screen menu to:
-- Create a new bank account.
-- Deposit or withdraw money from an existing account.
-- List all transactions for a specific account.

@@ -1,4 +1,3 @@
-# repositories/atm_repository.rb
 require_relative '../models/atm'
 
 class AtmRepository

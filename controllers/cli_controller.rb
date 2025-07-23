@@ -1,8 +1,8 @@
 class CliController
   def initialize(account_service, transaction_service, atm_service)
-    @account_service   = account_service
+    @account_service = account_service
     @transaction_service = transaction_service
-    @atm_service       = atm_service
+    @atm_service = atm_service
   end
 
   def run
@@ -65,7 +65,7 @@ class CliController
       puts "No accounts found."
     else
       accounts.each do |acc|
-        puts "ID: #{acc.id} | Name: #{acc.name} | Balance: $#{'%.2f' % acc.balance}"
+        puts "ID: #{acc.id} | Name: #{acc.name} | Balance: $#{acc.balance}"
       end
     end
   end
@@ -97,7 +97,7 @@ class CliController
       )
     end
 
-    puts "Deposit successful. New balance: $#{'%.2f' % (account.balance + amount)}"
+    puts "Deposit successful. New balance: $#{account.balance + amount}"
   end
 
   def withdraw_money
@@ -105,7 +105,6 @@ class CliController
     account, atm, amount = gather_account_atm_and_amount("withdraw")
     return unless account
 
-    # 4. Constraint checks
     withdrawn_today = @transaction_service.get_withdrawn_today(account.id)
     if err = @account_service.can_withdraw?(account, amount, withdrawn_today)[:error]
       return puts "Error: #{err}"
@@ -114,7 +113,6 @@ class CliController
       return puts "Error: #{err}"
     end
 
-    # 5. Perform
     DB.transaction do
       @account_service.update_balance(account.id, account.balance - amount)
       @atm_service.update_balance(atm.id, atm.balance - amount)
@@ -126,7 +124,7 @@ class CliController
       )
     end
 
-    puts "Withdrawal successful. New balance: $#{'%.2f' % (account.balance - amount)}"
+    puts "Withdrawal successful. New balance: $#{account.balance - amount}"
   end
 
   def transfer_money
@@ -136,7 +134,7 @@ class CliController
     amount   = prompt_amount("transfer") or return
 
     if amount > from_acc.balance
-      return puts "Error: Insufficient funds. Current balance is $#{'%.2f' % from_acc.balance}."
+      return puts "Error: Insufficient funds. Current balance is $#{from_acc.balance}."
     end
 
     DB.transaction do
@@ -156,7 +154,7 @@ class CliController
       )
     end
 
-    puts "Transfer successful: $#{'%.2f' % amount} from ##{from_acc.id} → ##{to_acc.id}"
+    puts "Transfer successful: $#{amount} from ##{from_acc.id} → ##{to_acc.id}"
   end
 
   def list_transactions
@@ -174,14 +172,13 @@ class CliController
       puts "No transactions found."
     else
       transactions.each do |t|
-        puts "- #{t.created_at.strftime('%Y-%m-%d %H:%M')} | #{t.type.capitalize.ljust(10)} | $#{'%.2f' % t.amount}"
+        puts "- #{t.created_at.strftime('%Y-%m-%d %H:%M')} | #{t.type.capitalize.ljust(10)} | $#{t.amount}"
       end
     end
   end
 
   #––– Helpers –––#
 
-  # Prompts user to pick account, ATM, and amount; returns [account, atm, amount] or nils
   def gather_account_atm_and_amount(action)
     account = select_account or return
     atm     = select_atm     or return
