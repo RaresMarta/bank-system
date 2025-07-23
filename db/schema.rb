@@ -13,7 +13,7 @@ module Schema
 
     DB.create_table?(:atms) do
       primary_key :id
-      String :location, null: false
+      String :location, null: false, unique: true
       Float :balance, default: 10_000
     end
 

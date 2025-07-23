@@ -73,11 +73,11 @@ class CliController
   def create_atm
     puts "\n--- Add New ATM ---"
     location = prompt("ATM Location")
-    atm = @atm_service.create_atm(location: location)
-    if atm.respond_to?(:id)
-      puts "ATM created successfully! ATM ID: #{atm.id}"
+    atm = @atm_service.create_atm(location)
+    if atm.is_a?(Hash) && atm[:error]
+      puts "Error: #{atm[:error]}"
     else
-      puts "Error creating ATM."
+      puts "ATM created successfully! ATM ID: #{atm.id}"
     end
   end
 

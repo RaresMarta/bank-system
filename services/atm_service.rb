@@ -12,8 +12,10 @@ class AtmService
     atm ? { atm: atm } : { error: "Atm not found." }
   end
 
-  def create_atm(location:)
-  	@atm_repo.create(location: location)
+  def create_atm(location)
+    @atm_repo.create(location: location)
+  rescue Sequel::UniqueConstraintViolation, Sequel::ValidationFailed
+    { error: "An ATM already exists at this location." }
   end
 
   def update_balance(atm_id, new_balance)
