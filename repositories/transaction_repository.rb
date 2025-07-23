@@ -5,7 +5,7 @@ class TransactionRepository
     Transaction.where(bank_account_id: account_id).order(Sequel.desc(:created_at))
   end
 
-  def create(account_id:, target_id:, atm_id:, amount:, type:)
+  def create(account_id:, target_id: nil, atm_id: nil, amount:, type:)
     Transaction.create(
       bank_account_id: account_id,
       target_account_id: target_id,

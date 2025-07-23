@@ -1,21 +1,35 @@
 class TransactionService
-  ALLOWED_TYPES = %w[deposit withdraw transfer_in transfer_out].freeze
+  TRANSACTION_TYPES = %w[deposit withdraw].freeze
 
   def initialize(transaction_repo)
     @transaction_repo = transaction_repo
   end
 
-  def create_transaction(account_id:, target_id: nil, atm_id: nil, amount:, type:)
-    unless ALLOWED_TYPES.include?(type)
+  def create_transaction(account_id:, atm_id:, amount:, type:)
+    unless TRANSACTION_TYPES.include?(type)
       raise ArgumentError, "Invalid transaction type: #{type}"
     end
 
     @transaction_repo.create(
       account_id: account_id,
-      target_id: target_id,
       atm_id: atm_id,
       amount: amount,
       type: type
+    )
+  end
+
+  def create_transfer(account_id:, target_id:, amount:)
+    @transaction_repo.create(
+      account_id: account_id,
+      target_id: target_id,
+      amount: amount,
+      type: 'transfer_out'
+    )
+    @transaction_repo.create(
+      account_id: target_id,
+      target_id: account_id,
+      amount: amount,
+      type: 'transfer_in'
     )
   end
 

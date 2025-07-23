@@ -140,17 +140,10 @@ class CliController
     DB.transaction do
       @account_service.update_balance(from_acc.id, from_acc.balance - amount)
       @account_service.update_balance(to_acc.id,   to_acc.balance   + amount)
-      @transaction_service.create_transaction(
+      @transaction_service.create_transfer(
         account_id: from_acc.id,
         target_id:  to_acc.id,
-        amount:     amount,
-        type:       'transfer_out'
-      )
-      @transaction_service.create_transaction(
-        account_id: to_acc.id,
-        target_id:  from_acc.id,
-        amount:     amount,
-        type:       'transfer_in'
+        amount:     amount
       )
     end
 
@@ -160,11 +153,10 @@ class CliController
   def list_transactions
     puts "\n--- List Transactions ---"
     account_id = prompt("Enter Account ID").to_i
-    result     = @account_service.get_account(account_id)
-    if result[:error]
-      return puts "Error: #{result[:error]}"
-    end
-    account      = result[:account]
+    result = @account_service.get_account(account_id)
+    return puts "Error: #{result[:error]}" if result[:error]
+
+    account = result[:account]
     transactions = @transaction_service.get_transactions_for_account(account.id)
 
     puts "\nTransactions for Account ##{account.id} (#{account.name}):"

@@ -13,7 +13,7 @@ class AtmService
   end
 
   def create_atm(location:)
-  	@atm_repo.create(location)
+  	@atm_repo.create(location: location)
   end
 
   def update_balance(atm_id, new_balance)
