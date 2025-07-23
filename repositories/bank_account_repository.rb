@@ -1,6 +1,10 @@
 require_relative '../models/bank_account'
 
 class BankAccountRepository
+  def all
+    BankAccount.all
+  end
+
   def find(id)
     BankAccount[id]
   end
