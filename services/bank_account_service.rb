@@ -25,11 +25,26 @@ class BankAccountService
   end
 
   def can_withdraw?(account, amount, withdrawn_today)
+    return amount_positive?(amount) ||
+           has_sufficient_funds?(account, amount) ||
+           under_daily_limit?(withdrawn_today, amount) ||
+           { ok: true }
+  end
+
+  private
+
+  def amount_positive?(amount)
     return { error: "Withdrawal amount must be positive." } unless amount > 0
+  end
+
+  def has_sufficient_funds?(account, amount)
     return { error: "Insufficient funds. Current balance is $#{account.balance}." } if account.balance < amount
+  end
+
+  def under_daily_limit?(withdrawn_today, amount)
     if (withdrawn_today + amount) > DAILY_WITHDRAWAL_LIMIT
       return { error: "Daily withdrawal limit of $#{DAILY_WITHDRAWAL_LIMIT} exceeded. You have withdrawn $#{withdrawn_today} today." }
     end
-    { ok: true }
   end
+
 end
