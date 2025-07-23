@@ -160,13 +160,7 @@ class CliController
     transactions = @transaction_service.get_transactions_for_account(account.id)
 
     puts "\nTransactions for Account ##{account.id} (#{account.name}):"
-    if transactions.empty?
-      puts "No transactions found."
-    else
-      transactions.each do |t|
-        puts "- #{t.created_at.strftime('%Y-%m-%d %H:%M')} | #{t.type.capitalize.ljust(10)} | $#{t.amount}"
-      end
-    end
+    puts @transaction_service.format_transactions(transactions)
   end
 
   #––– Helpers –––#
