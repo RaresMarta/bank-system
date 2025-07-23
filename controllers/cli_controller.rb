@@ -144,13 +144,13 @@ class CliController
         account_id: from_acc.id,
         target_id:  to_acc.id,
         amount:     amount,
-        type:       'transfer'
+        type:       'transfer_out'
       )
       @transaction_service.create_transaction(
         account_id: to_acc.id,
         target_id:  from_acc.id,
         amount:     amount,
-        type:       'transfer'
+        type:       'transfer_in'
       )
     end
 

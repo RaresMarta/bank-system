@@ -2,7 +2,7 @@ require_relative '../models/atm'
 
 class AtmRepository
   def all
-    Atm.all
+    Atm.order(:id).all
   end
 
   def find(id)

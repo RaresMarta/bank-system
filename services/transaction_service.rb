@@ -1,5 +1,5 @@
 class TransactionService
-  ALLOWED_TYPES = %w[deposit withdraw transfer].freeze
+  ALLOWED_TYPES = %w[deposit withdraw transfer_in transfer_out].freeze
 
   def initialize(transaction_repo)
     @transaction_repo = transaction_repo

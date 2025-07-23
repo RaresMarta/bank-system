@@ -23,7 +23,7 @@ module Schema
       foreign_key :target_account_id, :bank_accounts, null: true, on_delete: :set_null
       foreign_key :atm_id, :atms, null: true, on_delete: :set_null
       Float :amount, null: false
-      String :type, null: false # 'deposit', 'withdrawal', 'transfer'
+      String :type, null: false # 'deposit', 'withdrawal', 'transfer_in', 'transfer_out'
       DateTime :created_at, default: Sequel::CURRENT_TIMESTAMP
     end
 
