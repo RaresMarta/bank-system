@@ -104,14 +104,7 @@ class CliController
     puts "\n--- Withdraw Money ---"
     account, atm, amount = gather_account_atm_and_amount("withdraw")
     return unless account
-
-    withdrawn_today = @transaction_service.get_withdrawn_today(account.id)
-    if err = @account_service.can_withdraw?(account, amount, withdrawn_today)[:error]
-      return puts "Error: #{err}"
-    end
-    if err = @atm_service.can_withdraw?(atm, amount)[:error]
-      return puts "Error: #{err}"
-    end
+    return unless can_withdraw_from_account_and_atm?(account, atm, amount)
 
     DB.transaction do
       @account_service.update_balance(account.id, account.balance - amount)
@@ -165,6 +158,8 @@ class CliController
 
   #––– Helpers –––#
 
+  private
+
   def gather_account_atm_and_amount(action)
     account = select_account or return
     atm     = select_atm     or return
@@ -212,5 +207,23 @@ class CliController
       return nil
     end
     amt
+  end
+
+  def can_withdraw_from_account_and_atm?(account, atm, amount)
+    withdrawn_today = @transaction_service.get_withdrawn_today(account.id)
+
+    account_check = @account_service.can_withdraw?(account, amount, withdrawn_today)
+    if account_check[:error]
+      puts "Error: #{account_check[:error]}"
+      return false
+    end
+
+    atm_check = @atm_service.can_withdraw?(atm, amount)
+    if atm_check[:error]
+      puts "Error: #{atm_check[:error]}"
+      return false
+    end
+
+    true
   end
 end
