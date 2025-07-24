@@ -13,7 +13,7 @@ class TransactionView < View
   end
 
 	def deposit_success(amount, balance)
-		print_success("Deposited $#{amount} successfully. New balance: $#{balance}")
+		print_success("Deposited $#{amount}. New balance: $#{balance}")
 	end
 
 	def deposit_failure(error)
@@ -21,7 +21,7 @@ class TransactionView < View
 	end
 
 	def withdraw_success(amount, balance)
-		print_success("Withdrew $#{amount} successfully. New balance: $#{balance}")
+		print_success("Withdrew $#{amount}. New balance: $#{balance}")
 	end
 
 	def withdraw_failure(error)
@@ -33,6 +33,6 @@ class TransactionView < View
 	end
 
 	def transfer_failure(error)
-		print_error("Failed to transfer: #{error.message}")
+		print_error("Failed to transfer: #{error}")
 	end
 end

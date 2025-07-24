@@ -33,6 +33,7 @@ class BankAccountService
   end
 
   def can_withdraw?(account, amount, withdrawn_today)
+    account = @account_repo.find(account.id)
     return amount_positive?(amount) ||
            has_sufficient_funds?(account, amount) ||
            under_daily_limit?(withdrawn_today, amount) ||
@@ -46,7 +47,7 @@ class BankAccountService
   end
 
   def has_sufficient_funds?(account, amount)
-    return { error: "Insufficient funds. Current balance is $#{account.balance}." } if account.balance < amount
+    return { error: "Insufficient funds." } if account.balance < amount
   end
 
   def under_daily_limit?(withdrawn_today, amount)
@@ -54,5 +55,4 @@ class BankAccountService
       return { error: "Daily withdrawal limit of $#{DAILY_WITHDRAWAL_LIMIT} exceeded. You have withdrawn $#{withdrawn_today} today." }
     end
   end
-
 end

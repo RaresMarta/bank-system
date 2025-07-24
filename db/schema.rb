@@ -38,4 +38,37 @@ module Schema
     DB.drop_table?(:bank_accounts)
     puts "Database tables dropped."
   end
+
+  def self.create_dummy_data
+    require_relative '../models/bank_account'
+    require_relative '../models/atm'
+
+    BankAccount.create(
+      name: 'Burebista',
+      job: 'King of Dacia',
+      email: 'burebista@dacia.ro',
+      address: 'Sarmizegetusa Regia',
+      balance: 3000.0
+    )
+
+    BankAccount.create(
+      name: 'Vlad Țepeș',
+      job: 'Voivode of Wallachia',
+      email: 'vlad.tepes@wallachia.ro',
+      address: 'Poenari Fortress',
+      balance: 4500.0
+    )
+
+    Atm.create(
+      location: 'Sighișoara Citadel',
+      balance: 6000.0
+    )
+
+    Atm.create(
+      location: 'Dacian Mountains',
+      balance: 9000.0
+    )
+
+    puts "Dummy data inserted."
+  end
 end

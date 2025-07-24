@@ -34,10 +34,6 @@ class View
     print_error("Invalid #{field}.")
   end
 
-  def print_invalid_id(object_type)
-    print_error("Invalid #{object_type.capitalize} ID.")
-  end
-
   def print_invalid_string(str)
     print_error("Invalid #{str}.")
   end

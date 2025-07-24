@@ -4,16 +4,20 @@ class BankAccountView < View
   def list_accounts(accounts)
     print_header("All Bank Accounts")
     if accounts.empty?
-      print_info("No accounts found.")
+      puts "No accounts found."
     else
       accounts.each do |acc|
-        print_info("ID: #{acc.id} | Name: #{acc.name} | Balance: $#{acc.balance} | Created: #{acc.created_at.strftime('%Y-%m-%d %H:%M')}")
+        puts "ID: #{acc.id} | Name: #{acc.name} | Balance: $#{acc.balance} | Created: #{acc.created_at.strftime('%Y-%m-%d %H:%M')}"
       end
     end
   end
 
-  def creation_success(account)
-    print_success("Account created with ID: #{account.id}")
+  def print_account(acc)
+    puts "ID: #{acc.id} | Name: #{acc.name} | Balance: $#{acc.balance} | Created: #{acc.created_at.strftime('%Y-%m-%d %H:%M')}"
+  end
+
+  def creation_success(acc)
+    print_success("Account created with ID: #{acc.id}")
   end
 
   def creation_failure(error)
