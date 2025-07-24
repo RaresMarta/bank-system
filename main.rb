@@ -4,7 +4,8 @@ require_relative 'repositories/atm_repository'
 require_relative 'services/bank_account_service'
 require_relative 'services/transaction_service'
 require_relative 'services/atm_service'
-require_relative 'controllers/cli_controller'
+require_relative 'controllers/user_controller'
+require_relative 'controllers/admin_controller'
 
 account_repo = BankAccountRepository.new
 transaction_repo = TransactionRepository.new
@@ -14,5 +15,6 @@ transaction_service = TransactionService.new(transaction_repo)
 account_service = BankAccountService.new(account_repo)
 atm_service = AtmService.new(atm_repo)
 
-controller = CliController.new(account_service, transaction_service, atm_service)
+#controller = UserController.new(account_service, transaction_service, atm_service)
+controller = AdminController.new(account_service, transaction_service, atm_service)
 controller.run

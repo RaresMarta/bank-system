@@ -42,14 +42,4 @@ class TransactionService
     window_start = Time.now - 24*60*60
     @transaction_repo.withdrawn_since(account_id, window_start)
   end
-
-  def format_transactions(transactions)
-    if transactions.empty?
-      "No transactions found."
-    else
-      transactions.map do |t|
-        "- #{t.created_at.strftime('%Y-%m-%d %H:%M')} | #{t.type.capitalize.ljust(10)} | $#{t.amount}"
-      end.join("\n")
-    end
-  end
 end

@@ -1,14 +1,26 @@
-class CliController
+require_relative '../views/view'
+require_relative '../views/bank_account_view'
+require_relative '../views/atm_view'
+require_relative '../views/transaction_view'
+require_relative '../lib/validator'
+
+
+class AdminController
   def initialize(account_service, transaction_service, atm_service)
     @account_service = account_service
     @transaction_service = transaction_service
     @atm_service = atm_service
+    @view = View.new
+    @account_view = BankAccountView.new
+    @transaction_view = TransactionView.new
+    @atm_view = AtmView.new
+    @validator = Validator.instance
   end
 
   def run
     loop do
       print_menu
-      choice = prompt("Choose an option")
+      choice = @view.prompt("Choose an option")
       case choice
       when '1' then create_account
       when '2' then list_accounts
@@ -18,7 +30,7 @@ class CliController
       when '6' then list_transactions
       when '7' then create_atm
       when '8' then break
-      else puts "Invalid option. Please try again."
+      else @view.print_invalid_option
       end
     end
   end
@@ -26,66 +38,66 @@ class CliController
   private
 
   def print_menu
-    puts "\n===== Bank System CLI ====="
-    puts "1. Create Account"
-    puts "2. List Accounts"
-    puts "3. Deposit Money"
-    puts "4. Withdraw Money"
-    puts "5. Transfer Money"
-    puts "6. List Transactions"
-    puts "7. Add ATM"
-    puts "8. Exit"
-  end
-
-  def prompt(message)
-    print "#{message}: "
-    gets.chomp
+    @view.print_header("Bank System CLI")
+    @view.print_menu([
+      "Create Account",
+      "List Accounts",
+      "Deposit Money",
+      "Withdraw Money",
+      "Transfer Money",
+      "List Transactions",
+      "Add ATM",
+      "Exit"
+    ])
   end
 
   def create_account
-    puts "\n--- Create New Bank Account ---"
+    @view.print_header("Create New Bank Account")
     params = {
-      name:    prompt("Full Name"),
-      job:     prompt("Job Title"),
-      email:   prompt("Email Address"),
-      address: prompt("Full Address")
+      name:    @view.prompt("Full Name"),
+      job:     @view.prompt("Job Title"),
+      email:   @view.prompt("Email Address"),
+      address: @view.prompt("Full Address")
     }
+
+    invalid_fields = params.keys.reject { |field| @validator.valid_field(field, params[field]) }
+    unless invalid_fields.empty?
+      invalid_fields.each { |field| @view.print_invalid_field(field) }
+      return
+    end
+
     result = @account_service.create_account(**params)
     if result[:error]
-      puts "Error: #{result[:error]}"
+      @account_view.creation_failure(result[:error])
     else
-      puts "Account created successfully! Your new Account ID is: #{result.id}"
+      @account_view.creation_success(result)
     end
   end
 
   def list_accounts
-    puts "\n--- All Bank Accounts ---"
     accounts = @account_service.get_all_accounts
-    if accounts.empty?
-      puts "No accounts found."
-    else
-      accounts.each do |acc|
-        puts "ID: #{acc.id} | Name: #{acc.name} | Balance: $#{acc.balance}"
-      end
-    end
+    @account_view.list_accounts(accounts)
   end
 
   def create_atm
-    puts "\n--- Add New ATM ---"
-    location = prompt("ATM Location")
+    @view.print_header("Add New ATM")
+    location = @view.prompt("ATM Location")
+    unless @validator.valid_location?(location)
+      @view.print_error("Invalid location")
+      return
+    end
     atm = @atm_service.create_atm(location)
     if atm.is_a?(Hash) && atm[:error]
-      puts "Error: #{atm[:error]}"
+      @atm_view.creation_failure(atm[:error])
     else
-      puts "ATM created successfully! ATM ID: #{atm.id}"
+      @atm_view.creation_success(atm)
     end
   end
 
   def deposit_money
-    puts "\n--- Deposit Money ---"
-    account, atm, amount = gather_account_atm_and_amount("deposit")
+    @view.print_header("Deposit Money")
+    account, atm, amount = get_account_atm_and_amount("deposit")
     return unless account
-
     DB.transaction do
       @account_service.update_balance(account.id, account.balance + amount)
       @atm_service.update_balance(atm.id, atm.balance + amount)
@@ -96,16 +108,14 @@ class CliController
         type:       'deposit'
       )
     end
-
-    puts "Deposit successful. New balance: $#{account.balance + amount}"
+    @transaction_view.deposit_success(amount, account.balance + amount)
   end
 
   def withdraw_money
-    puts "\n--- Withdraw Money ---"
-    account, atm, amount = gather_account_atm_and_amount("withdraw")
+    @view.print_header("Withdraw Money")
+    account, atm, amount = get_account_atm_and_amount("withdraw")
     return unless account
     return unless can_withdraw_from_account_and_atm?(account, atm, amount)
-
     DB.transaction do
       @account_service.update_balance(account.id, account.balance - amount)
       @atm_service.update_balance(atm.id, atm.balance - amount)
@@ -116,18 +126,18 @@ class CliController
         type:       'withdraw'
       )
     end
-
-    puts "Withdrawal successful. New balance: $#{account.balance - amount}"
+    @transaction_view.withdraw_success(amount, account.balance - amount)
   end
 
   def transfer_money
-    puts "\n--- Transfer Money ---"
+    @view.print_header("Transfer Money")
     from_acc = select_account("sender") or return
     to_acc   = select_account("receiver") or return
     amount   = prompt_amount("transfer") or return
 
     if amount > from_acc.balance
-      return puts "Error: Insufficient funds. Current balance is $#{from_acc.balance}."
+      @view.print_error("Insufficient funds #{from_acc.balance}")
+      return
     end
 
     DB.transaction do
@@ -140,27 +150,30 @@ class CliController
       )
     end
 
-    puts "Transfer successful: $#{amount} from ##{from_acc.id} → ##{to_acc.id}"
+    @transaction_view.transfer_success(amount, from_acc.id, to_acc.id)
   end
 
   def list_transactions
-    puts "\n--- List Transactions ---"
-    account_id = prompt("Enter Account ID").to_i
+    @view.print_header("List Transactions")
+    account_id = @view.prompt("Enter Account ID")
+
+    unless @validator.valid_id?(account_id)
+      @view.print_invalid_id("account")
+      return
+    end
+
+    account_id = account_id.to_i
     result = @account_service.get_account(account_id)
-    return puts "Error: #{result[:error]}" if result[:error]
+    return @view.print_error(result[:error]) if result[:error]
 
     account = result[:account]
     transactions = @transaction_service.get_transactions_for_account(account.id)
-
-    puts "\nTransactions for Account ##{account.id} (#{account.name}):"
-    puts @transaction_service.format_transactions(transactions)
+    @transaction_view.list_transactions(account, transactions)
   end
 
   #––– Helpers –––#
 
-  private
-
-  def gather_account_atm_and_amount(action)
+  def get_account_atm_and_amount(action)
     account = select_account or return
     atm     = select_atm     or return
     amount  = prompt_amount(action) or return
@@ -170,15 +183,21 @@ class CliController
   def select_account(role = nil)
     accounts = @account_service.get_all_accounts
     if accounts.empty?
-      puts "No accounts available."
+      @view.print_info("No accounts available.")
       return nil
     end
-    accounts.each { |acc| puts "ID: #{acc.id} | Name: #{acc.name}" }
+    accounts.each { |acc| @view.print_info("ID: #{acc.id} | Name: #{acc.name}") }
+
     label = role ? "#{role.capitalize} " : ""
-    id = prompt("Select #{label}Account ID").to_i
+    id = @view.prompt("Select #{label} Account ID")
+    unless @validator.valid_id?(id)
+      @view.print_invalid_id("account")
+      return nil
+    end
+    id = id.to_i
     account = accounts.find { |a| a.id == id }
     unless account
-      puts "Error: Account not found."
+      @view.print_error("Account not found.")
       return nil
     end
     account
@@ -186,44 +205,46 @@ class CliController
 
   def select_atm
     atms = @atm_service.get_all_atms
-    if atms.empty?
-      puts "No ATMs available."
+    @atm_view.list_atms(atms)
+    return nil if atms.empty?
+
+    idx = @view.prompt("Select ATM")
+    unless @validator.valid_id?(idx)
+      @view.print_invalid_id("atm")
       return nil
     end
-    atms.each_with_index { |atm, idx| puts "#{idx+1}. #{atm.location}" }
-    idx = prompt("Select ATM").to_i - 1
+    idx = idx.to_i - 1
     atm = atms[idx]
     unless atm
-      puts "Error: ATM not found."
+      @view.print_error("ATM not found.")
       return nil
     end
     atm
   end
 
   def prompt_amount(action)
-    amt = prompt("Amount to #{action}").to_f
-    if amt <= 0
-      puts "Error: Amount must be positive."
+    amt = @view.prompt("Amount to #{action}")
+    unless @validator.valid_amount?(amt)
+      @view.print_error("Amount must be a positive number.")
       return nil
     end
+    amt = amt.to_f
     amt
   end
 
   def can_withdraw_from_account_and_atm?(account, atm, amount)
     withdrawn_today = @transaction_service.get_withdrawn_today(account.id)
-
     account_check = @account_service.can_withdraw?(account, amount, withdrawn_today)
     if account_check[:error]
-      puts "Error: #{account_check[:error]}"
+      @transaction_view.withdraw_failure(account_check[:error])
       return false
     end
 
     atm_check = @atm_service.can_withdraw?(atm, amount)
     if atm_check[:error]
-      puts "Error: #{atm_check[:error]}"
+      @transaction_view.withdraw_failure(atm_check[:error])
       return false
     end
-
-    true
+    return true
   end
 end

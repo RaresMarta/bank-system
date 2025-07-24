@@ -24,6 +24,14 @@ class BankAccountService
     @account_repo.update_balance(account_id, new_balance)
   end
 
+  def update_field(account_id, field, value)
+    @account_repo.update_field(account_id, field, value)
+  end
+
+  def find_by_email(email)
+    @account_repo.find_by_email(email)
+  end
+
   def can_withdraw?(account, amount, withdrawn_today)
     return amount_positive?(amount) ||
            has_sufficient_funds?(account, amount) ||

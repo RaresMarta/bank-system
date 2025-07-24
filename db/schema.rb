@@ -9,12 +9,14 @@ module Schema
       String :email, null: false, unique: true
       String :address, null: true
       Float :balance, default: 0.0
+      DateTime :created_at, default: Sequel::CURRENT_TIMESTAMP
     end
 
     DB.create_table?(:atms) do
       primary_key :id
       String :location, null: false, unique: true
       Float :balance, default: 10_000
+      DateTime :created_at, default: Sequel::CURRENT_TIMESTAMP
     end
 
     DB.create_table?(:transactions) do
