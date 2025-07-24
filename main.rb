@@ -15,6 +15,6 @@ transaction_service = TransactionService.new(transaction_repo)
 account_service = BankAccountService.new(account_repo)
 atm_service = AtmService.new(atm_repo)
 
-#controller = UserController.new(account_service, transaction_service, atm_service)
-controller = AdminController.new(account_service, transaction_service, atm_service)
+controller = UserController.new(account_service, transaction_service, atm_service)
+# controller = AdminController.new(account_service, transaction_service, atm_service)
 controller.run

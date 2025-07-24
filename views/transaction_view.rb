@@ -6,9 +6,7 @@ class TransactionView < View
     if transactions.empty?
       puts "No transactions found."
     else
-      transactions.each do |t|
-      	puts "- id #{t.id} | #{t.created_at.strftime('%Y-%m-%d %H:%M')} | #{t.type.capitalize.ljust(10)} | $#{'%.2f' % t.amount}"
-			end
+      transactions.each { |t| puts t }
     end
   end
 

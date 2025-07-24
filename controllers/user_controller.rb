@@ -5,6 +5,8 @@ require_relative '../views/atm_view'
 require_relative '../lib/validator'
 
 class UserController
+  attr_reader :view, :account_view, :transaction_view, :atm_view
+
   def initialize(account_service, transaction_service, atm_service)
     @account_service = account_service
     @transaction_service = transaction_service
@@ -105,7 +107,7 @@ class UserController
 
   def view_account
     refresh_user
-    @account_view.print_account(@current_user)
+    @view.print_info(@current_user)
   end
 
   def deposit
@@ -203,7 +205,7 @@ class UserController
     @view.print_header("Edit Account - blank fields are not changed")
 
     %w[name job email address].each do |field|
-      current_value = account.send(field)
+      current_value = account.public_send(field)
       new_value = @view.prompt("New #{field.capitalize} (current: #{current_value})")
       next if new_value.strip.empty?
       @account_service.update_field(@current_user.id, field, new_value)

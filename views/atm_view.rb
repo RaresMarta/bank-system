@@ -6,7 +6,7 @@ class AtmView < View
     if atms.empty?
       puts "No ATMs available."
     else
-      atms.each_with_index { |atm, idx| puts "#{idx + 1}. #{atm.location}" }
+      atms.each { |atm| puts atm }
     end
   end
 

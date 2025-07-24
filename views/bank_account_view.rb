@@ -6,14 +6,8 @@ class BankAccountView < View
     if accounts.empty?
       puts "No accounts found."
     else
-      accounts.each do |acc|
-        puts "ID: #{acc.id} | Name: #{acc.name} | Balance: $#{acc.balance} | Created: #{acc.created_at.strftime('%Y-%m-%d %H:%M')}"
-      end
+      accounts.each { |acc| puts acc }
     end
-  end
-
-  def print_account(acc)
-    puts "ID: #{acc.id} | Name: #{acc.name} | Balance: $#{acc.balance} | Created: #{acc.created_at.strftime('%Y-%m-%d %H:%M')}"
   end
 
   def creation_success(acc)

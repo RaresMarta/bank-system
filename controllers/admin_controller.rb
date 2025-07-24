@@ -131,10 +131,10 @@ class AdminController
       return
     end
     account = result[:account]
-    @account_view.print_account(account)
+    print_info(account)
 
     %w[name job email address].each do |field|
-      current_value = account.send(field)
+      current_value = account.public_send(field)
       new_value = @view.prompt("New #{field.capitalize} (current: #{current_value})")
       next if new_value.strip.empty?
       @account_service.update_field(account_id, field, new_value)
