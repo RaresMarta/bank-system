@@ -39,17 +39,20 @@ class UserController
 
   def create_account
     @view.print_header("Register New Account")
+
     params = {
       name:    @view.prompt("Full Name"),
       job:     @view.prompt("Job Title"),
       email:   @view.prompt("Email Address"),
       address: @view.prompt("Full Address"),
     }
+
     invalid_fields = params.keys.reject { |field| @validator.valid_field(field, params[field]) }
-    unless invalid_fields.empty?
+    if invalid_fields.any?
       invalid_fields.each { |field| @view.print_invalid_field(field) }
       return
     end
+
     result = @account_service.create_account(**params)
     if result[:error]
       @account_view.creation_failure(result[:error])
@@ -62,10 +65,12 @@ class UserController
     @view.print_header("Login")
     email = @view.prompt("Email Address")
     result = @account_service.find_by_email(email)
+
     if result.nil?
       @view.print_error("No account found with that email.")
       return
     end
+
     @current_user = result
     user_menu
   end
@@ -82,6 +87,7 @@ class UserController
         "View Transactions",
         "Log out"
       ])
+
       choice = @view.prompt("Choose an option")
       case choice
       when '1' then view_account
@@ -104,6 +110,7 @@ class UserController
 
   def deposit
     @view.print_header("Deposit Money")
+
     atm, amount = get_atm_and_amount_for("deposit")
     return unless amount
 
@@ -117,6 +124,7 @@ class UserController
         type: 'deposit'
       )
     end
+
     refresh_user
     @transaction_view.deposit_success(amount, @current_user.balance)
   end
@@ -166,6 +174,7 @@ class UserController
 
   def select_recipient_account
     accounts = @account_service.get_all_accounts.reject { |acc| acc.id == @current_user.id }
+
     if accounts.empty?
       @view.print_info("No accounts available.")
       return nil
@@ -186,17 +195,20 @@ class UserController
       @transaction_view.transfer_failure("Recipient not found.")
       return nil
     end
+
     account
   end
 
   def edit_account
     @view.print_header("Edit Account - blank fields are not changed")
+
     %w[name job email address].each do |field|
       current_value = account.send(field)
       new_value = @view.prompt("New #{field.capitalize} (current: #{current_value})")
       next if new_value.strip.empty?
       @account_service.update_field(@current_user.id, field, new_value)
     end
+
     @view.print_success("Account updated.")
   end
 
@@ -228,26 +240,31 @@ class UserController
       @view.print_error("ATM not found.")
       return nil
     end
+
     atm
   end
 
   def prompt_amount(action)
     amount = @view.prompt("Amount to #{action}")
+
     unless @validator.valid_amount?(amount)
       @view.print_error("Amount must be a positive number.")
       return nil
     end
+
     amount = amount.to_f
     amount
   end
 
   def can_withdraw_from_account_and_atm?(atm, amount)
     if amount > @current_user.balance
-      @view.print_error("Insufficient funds.")
-      return
+      @transaction_view.withdraw_failure("Insufficient funds.")
+      return false
     end
+
     withdrawn_today = @transaction_service.get_withdrawn_today(@current_user.id)
     account_check = @account_service.can_withdraw?(@current_user, amount, withdrawn_today)
+
     if account_check[:error]
       @transaction_view.withdraw_failure(account_check[:error])
       return false
@@ -258,6 +275,7 @@ class UserController
       @transaction_view.withdraw_failure(atm_check[:error])
       return false
     end
+
     return true
   end
 

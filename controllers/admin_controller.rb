@@ -29,6 +29,7 @@ class AdminController
         "Edit ATM",
         "Exit"
       ])
+
       choice = @view.prompt("Choose an option")
       case choice
       when '1' then create_account
@@ -48,17 +49,20 @@ class AdminController
 
   def create_account
     @view.print_header("Create New Bank Account")
+
     params = {
       name:    @view.prompt("Full Name"),
       job:     @view.prompt("Job Title"),
       email:   @view.prompt("Email Address"),
       address: @view.prompt("Full Address")
     }
+
     invalid_fields = params.keys.reject { |field| @validator.valid_field(field, params[field]) }
-    unless invalid_fields.empty?
+    if invalid_fields.any?
       invalid_fields.each { |field| @view.print_invalid_field(field) }
       return
     end
+
     result = @account_service.create_account(**params)
     if result[:error]
       @account_view.creation_failure(result[:error])
@@ -69,11 +73,13 @@ class AdminController
 
   def create_atm
     @view.print_header("Add New ATM")
+
     location = @view.prompt("ATM Location")
     unless @validator.valid_location?(location)
       @atm_view.creation_failure("Invalid location")
       return
     end
+
     atm = @atm_service.create_atm(location)
     if atm.is_a?(Hash) && atm[:error]
       @atm_view.creation_failure(atm[:error])
@@ -112,6 +118,7 @@ class AdminController
 
   def edit_account
     @view.print_header("Edit Account - blank fields are not changed")
+
     account_id = @view.prompt("Enter Account ID to edit")
     unless @validator.valid_id?(account_id)
       @view.print_error("Invalid Account ID.")
@@ -136,7 +143,6 @@ class AdminController
     @view.print_success("Account updated.")
   end
 
-  # Edit an existing ATM's location
   def edit_atm
     @view.print_header("Edit ATM - blank fields are not changed")
     atms = @atm_service.get_all_atms
