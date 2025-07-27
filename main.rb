@@ -1,3 +1,9 @@
+require_relative 'db/db'
+require_relative 'db/schema'
+
+# Ensure schema is ready before loading models
+Schema.create unless DB.table_exists?(:bank_accounts)
+
 require_relative 'repositories/bank_account_repository'
 require_relative 'repositories/transaction_repository'
 require_relative 'repositories/atm_repository'

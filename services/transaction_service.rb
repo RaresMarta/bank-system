@@ -38,8 +38,8 @@ class TransactionService
   end
 
   def get_withdrawn_today(account_id)
-    # Start of the 24-hour window
-    window_start = Time.now - 24*60*60
+    now = Time.now
+    today_start = Time.new(now.year, now.month, now.day)
     @transaction_repo.withdrawn_since(account_id, window_start)
   end
 end

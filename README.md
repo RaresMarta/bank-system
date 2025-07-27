@@ -18,40 +18,33 @@ This project follows a modern Controller-Service-Repository architecture to ensu
 - **Repositories:** Manage all database queries and interactions.
 - **Models:** Simple data objects representing database tables.
 
-## Prerequisites
+## Running the App with Docker
 
-- Ruby
-- PostgreSQL
-- Bundler
+1. **Create a `.env` file** in the project root with the following variables:
+   ```env
+   DB_USER=your_db_user
+   DB_PASSWORD=your_db_password
+   DB_NAME=your_db_name
+   ```
+   (Replace values as needed. These will be used by the PostgreSQL container.)
 
-## Getting Started
+2. **Make the script executable (if needed):**
+   ```sh
+   chmod +x run.sh
+   ```
 
-1.  **Clone the repository:**
-    ```sh
-    git clone https://github.com/your-username/bank-system.git
-    cd bank-system
-    ```
+3. **Run the app using the script:**
+   ```sh
+   ./run.sh
+   ```
+   This script builds the app image, starts the database, and launches the CLI interactively.
 
-2.  **Install dependencies:**
-    ```sh
-    bundle install
-    ```
+4. **Run tests:**
+   ```sh
+   docker compose run --rm test
+   ```
 
-3.  **Set up the database:**
-    - Create a PostgreSQL user and database.
-    - Copy the example environment file:
-      ```sh
-      cp .env.example .env
-      ```
-    - Edit the `.env` file with your local database credentials.
-
-4.  **Create the database tables:**
-    Run the schema migration to set up the necessary tables.
-    ```sh
-    ruby -r './db/schema.rb' -e 'Schema.create'
-    ```
-
-5.  **Run the application:**
-    ```sh
-    ruby main.rb
-    ```
+5. **Stop the services when done:**
+   ```sh
+   docker compose down
+   ```

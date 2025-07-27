@@ -124,12 +124,14 @@ class AdminController
       @view.print_error("Invalid Account ID.")
       return
     end
+
     account_id = account_id.to_i
     result = @account_service.get_account(account_id)
     if result[:error]
       @view.print_error(result[:error])
       return
     end
+
     account = result[:account]
     print_info(account)
 
