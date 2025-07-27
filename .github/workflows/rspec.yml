@@ -1,0 +1,53 @@
+name: "Run RSpec on Push"
+
+on:
+  push:
+    branches: ["main", "dev", "**"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: db_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d db_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DB_HOST: localhost
+      DB_NAME: db_test
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      RACK_ENV: test
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+
+      - name: Install dependencies
+        run: bundle install --jobs 4 --retry 3
+
+      - name: Wait for Postgres to be ready
+        run: |
+          echo "Waiting for Postgres on $DB_HOST:$DB_PORT..."
+          until pg_isready -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME"; do
+            sleep 1
+          done
+
+      - name: Run RSpec
+        run: bundle exec rspec
