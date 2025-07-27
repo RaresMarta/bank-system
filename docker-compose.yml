@@ -1,0 +1,50 @@
+services:
+  app:
+    build: .
+    container_name: bank-system
+    depends_on:
+      - db
+    env_file:
+      - .env
+    command: ruby main.rb
+    stdin_open: true
+    tty: true
+
+  test:
+    build: .
+    container_name: bank-system-test
+    depends_on:
+      - db_test
+    env_file:
+      - .env.test
+    entrypoint: ["bundle", "exec", "rspec"]
+
+  db:
+    image: postgres:15
+    container_name: bank-system-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  db_test:
+    image: postgres:15
+    container_name: bank-system-db-test
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: db_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata_test:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+  pgdata_test:
